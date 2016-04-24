@@ -1,6 +1,43 @@
 const angleShift = Math.PI/8;
 const radius = 150;
 const sampleRoom = [1,1,1,0,0,1,0,0];
+const rooms = [[1,0,0,0,0,0,1,0],
+               [0,0,1,0,1,0,0,0],
+               [1,0,1,0,0,0,0,0],
+               [0,0,0,0,1,0,1,0]];
+               
+var roomNumber = 0;
+  
+var toPolar = function(point) {
+  x = parseFloat(point[0]);
+  if (x === 0) {
+    x += 0.000001;
+  }
+  y = point[1];
+  var quad = 0;
+  if (x <= 0 && y >= 0) {
+    quad = 1;
+  }
+  else if (x <= 0 && y <= 0) {
+    quad = -1;
+  }
+  return [Math.sqrt(x*x + y*y), Math.atan(y/x) + quad*Math.PI];
+};        
+
+var inWedge = function(point) {
+  if (point[0] < radius) {
+    return -1;
+  }
+  theta = point[1]+(angleShift/2);
+  var wedge = Math.floor((theta/angleShift))/2;
+  if (wedge < 0) {
+    wedge += 8;
+  }
+  if (wedge !== Math.floor(wedge)) {
+    return -1;
+  }
+  return wedge;
+}
 
 var drawRoom = function(roomData) {
   var canvas = $('#maze')[0];
@@ -42,18 +79,8 @@ var drawRoom = function(roomData) {
   }
 }
   
-  drawRoom([1,0,0,0,1,1,0,0]);
-  setTimeout(function() {
-    drawRoom([0,1,1,0,0,1,0,1]);  
-  }, 1000);
-  setTimeout(function() {
-    drawRoom([0,0,1,0,1,0,0,1]);  
-  }, 2000);
-  setTimeout(function() {
-    drawRoom([1,1,1,0,1,1,0,1]);  
-  }, 3000);
-  setTimeout(function() {
-    drawRoom([0,0,0,0,0,0,0,0]);  
-  }, 4000);
-  
-
+drawRoom([1,1,1,1,1,1,1,1]); 
+$('#maze').click(function(e) {
+  point = [e.pageX-this.offsetLeft-400, (-1*e.pageY)+this.offsetTop+300];
+  alert(inWedge(toPolar(point)));
+})
